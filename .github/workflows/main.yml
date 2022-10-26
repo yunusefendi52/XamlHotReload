@@ -1,0 +1,28 @@
+name: Main
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish to nuget
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  build:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+    - name: Compile
+      run: ./build.sh Compile CompileWatcher --no-logo
+    
+    - name: Upload NuGet
+      if: ${{ inputs.publish }}
+      run: dotnet nuget push local-nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}

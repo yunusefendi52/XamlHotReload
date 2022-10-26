@@ -1,0 +1,22 @@
+<Project>
+
+    <PropertyGroup>
+        <Version>1.0.0-alpha1</Version>
+        <Authors>Yunus Efendie</Authors>
+        <PackageProjectUrl>https://github.com/yunusefendi52/XamlHotReload</PackageProjectUrl>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <PackageOutputPath Condition="'$(PackageOutputPath)' == ''">$(MSBuildThisFileDirectory)local-nupkgs\</PackageOutputPath>
+        <RestoreSources>https://api.nuget.org/v3/index.json;$(RestoreSources)</RestoreSources>
+        <RestoreSources Condition="Exists('$(PackageOutputPath)')">
+            $(PackageOutputPath);$(RestoreSources)
+        </RestoreSources>
+    </PropertyGroup>
+
+</Project>

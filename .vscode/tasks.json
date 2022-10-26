@@ -1,0 +1,57 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "buildWatcher",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/XamlHotReloadWatcher/XamlHotReloadWatcher.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/XamlHotReloadWatcher/XamlHotReloadWatcher.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "watch",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/XamlHotReloadWatcher/XamlHotReloadWatcher.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "android",
+            "command": "dotnet",
+            "type": "process",
+            "problemMatcher": "$msCompile",
+            "args": [
+                "build",
+                "${workspaceFolder}/XamlHotReloadSamples",
+                "-t:Install;Run",
+                "-p:Configuration=Debug",
+                "-p:TargetFramework=net6.0-android",
+                "-p:AndroidAttachDebugger=true",
+                "-p:AndroidSdbTargetPort=7491",
+                "-p:AndroidSdbHostPort=7491"
+            ]
+        }
+    ]
+}
