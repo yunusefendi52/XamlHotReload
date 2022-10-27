@@ -6,7 +6,7 @@ using System.Xml.Linq;
 using EmbedIO;
 using EmbedIO.Routing;
 using EmbedIO.WebApi;
-using Microsoft.Maui.Controls.Internals;
+using Microsoft.Maui.Controls;
 using Extensions = Microsoft.Maui.Controls.Xaml.Extensions;
 
 namespace XamlHotReload;

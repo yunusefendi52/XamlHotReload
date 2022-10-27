@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "buildWatcher",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/XamlHotReloadWatcher/bin/Debug/net7.0/XamlHotReloadWatcher.dll",
+            "program": "${workspaceFolder}/XamlHotReloadWatcher/bin/Debug/net6.0/XamlHotReloadWatcher.dll",
             "args": [],
             "cwd": "${workspaceFolder}/XamlHotReloadWatcher",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
