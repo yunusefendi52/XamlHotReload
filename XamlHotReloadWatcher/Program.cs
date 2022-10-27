@@ -43,7 +43,7 @@ command.SetHandler((folder, deviceUrls) =>
                 var xaml = File.ReadAllText(fullPath);
                 var response = await http.PostAsync(
                     "/upload-xaml",
-                    new StringContent(xaml, Encoding.UTF8, new MediaTypeHeaderValue("text/xml")));
+                    new StringContent(xaml, Encoding.UTF8, "text/xml"));
                 var content = await response.Content.ReadAsStringAsync();
                 var contentJson = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(content);
                 if (contentJson == null)

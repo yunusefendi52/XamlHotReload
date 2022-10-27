@@ -66,6 +66,6 @@
     </ItemGroup>
     
     <!-- Import for testing without packaging -->
-    <Import Project="..\XamlHotReload\ReloadInjectorTask.targets" Condition=" '$(PkgXamlHotReload)' == '' " />
+    <Import Project="..\XamlHotReload\XamlHotReload.targets" Condition=" '$(PkgXamlHotReload)' == '' " />
 
 </Project>
