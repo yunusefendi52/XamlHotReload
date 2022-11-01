@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
 
 jobs:
   build:
@@ -22,6 +27,12 @@ jobs:
     #     dotnet-version: 7.0.x
     - name: Compile
       run: ./build.sh Compile CompileWatcher --no-logo
+    
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+      with:
+        limit-access-to-actor: true
     
     - name: Upload NuGet
       if: ${{ inputs.publish }}

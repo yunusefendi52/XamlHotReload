@@ -19,13 +19,16 @@ public static class ReloadInjector
         info?.Invoke($"Start injecting reload {assembly}");
 
         var module = assembly.MainModule;
-        var allTypeMethods = module.Types.SelectMany(v => v.Methods);
+        var allTypeMethods = module.Types.SelectMany(v => v.Methods).ToList();
 
         var reloaderAssemblyRef = module.AssemblyReferences.First(v => v.Name == "XamlHotReload");
         var reloader = module.AssemblyResolver.Resolve(reloaderAssemblyRef);
 
         foreach (var method in allTypeMethods)
         {
+            if (method.Body == null || method.Body.Instructions)
+                continue;
+
             var lastInstr = method.Body.Instructions.Last();
             method.Body.Instructions.RemoveAt(method.Body.Instructions.Count - 1);
             
