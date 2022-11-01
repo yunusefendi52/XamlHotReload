@@ -26,7 +26,7 @@ public static class ReloadInjector
 
         foreach (var method in allTypeMethods)
         {
-            if (method.Body == null || method.Body.Instructions)
+            if (method.Body == null || method.Body.Instructions == null || !method.Body.Instructions.Any())
                 continue;
 
             var lastInstr = method.Body.Instructions.Last();
