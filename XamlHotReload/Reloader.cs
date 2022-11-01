@@ -21,8 +21,31 @@ public class Reloader
 
     public void RaiseReceiveXaml(string xaml) => ReceiveXaml?.Invoke(this, xaml);
 
+    public event EventHandler<(string MethodName, object Instance)> OnInterceptInstance;
+
+    public event EventHandler<Assembly> OnNewAssembly; 
+
+    public void RaiseNewAssembly(Assembly assembly)
+    {
+        OnNewAssembly?.Invoke(this, assembly);
+    }
+
     public void Init(string address = "http://*", int port = 7451)
     {
+        OnInterceptInstance += (s, e) =>
+        {
+            if (e.Instance is not VisualElement view)
+                return;
+            var viewClass = view.GetType().FullName;
+            if (viewsXaml.ContainsKey(viewClass))
+            {
+                var xaml = viewsXaml[viewClass];
+                ReloadView(view, xaml);
+            }
+
+            Register(view);
+        };
+
         ReceiveXaml += (s, e) =>
         {
             var r = new System.Xml.XmlTextReader(new StringReader(e));
@@ -151,23 +174,9 @@ public class Reloader
         });
     }
 
-    public void TryInitializeComponent(VisualElement view)
+    public void TryInterceptInstance(object view)
     {
-        try
-        {
-            var viewClass = view.GetType().FullName;
-            if (viewsXaml.ContainsKey(viewClass))
-            {
-                var xaml = viewsXaml[viewClass];
-                ReloadView(view, xaml);
-            }
-
-            Register(view);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"HotReload: {ex}");
-        }
+        OnInterceptInstance?.Invoke(view, ("", view));
     }
 }
 
@@ -190,6 +199,34 @@ class ReloaderController : WebApiController
         {
             Console.WriteLine($"HotReload: {ex}");
 
+            await ResponseSerializer.Json(HttpContext, new
+            {
+                Reloaded = false,
+                Exception = ex.ToString(),
+            });
+        }
+    }
+
+    [Route(HttpVerbs.Post, "/upload-assembly")]
+    public async Task UploadAssembly()
+    {
+        try
+        {
+            var data = await HttpContext.GetRequestBodyAsByteArrayAsync();
+            var newAssembly = Assembly.Load(data);
+
+            Reloader.Instance.RaiseNewAssembly(newAssembly);
+
+            await ResponseSerializer.Json(HttpContext, new
+            {
+                Uploaded = true,
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"HotReload: {ex}");
+
+            HttpContext.Response.StatusCode = 500;
             await ResponseSerializer.Json(HttpContext, new
             {
                 Reloaded = false,

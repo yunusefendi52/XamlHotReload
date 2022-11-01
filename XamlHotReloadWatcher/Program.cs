@@ -1,9 +1,11 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using System.CommandLine;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using static SimpleExec.Command;
 
 var command = new RootCommand("Maui XAML hot reload watcher");
 
@@ -36,28 +38,56 @@ command.SetHandler((folder, deviceUrls) =>
             {
                 Console.WriteLine($"Sending changes to {deviceUrl}: {fullPath}");
 
-                using var http = new HttpClient(handler, disposeHandler: false)
+                if (fullPath.EndsWith(".cs"))
                 {
-                    BaseAddress = deviceUrl,
-                };
-                var xaml = File.ReadAllText(fullPath);
-                var response = await http.PostAsync(
-                    "/upload-xaml",
-                    new StringContent(xaml, Encoding.UTF8, "text/xml"));
-                var content = await response.Content.ReadAsStringAsync();
-                var contentJson = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(content);
-                if (contentJson == null)
-                    continue;
-                var reloaded = contentJson["Reloaded"].GetBoolean();
-                if (reloaded)
-                {
-                    Console.WriteLine($"Reloaded {deviceUrl} {fullPath}: {reloaded}");
-                    continue;
+                    var outputDir = Directory.CreateDirectory(
+                        Path.Combine("bin",
+                        "templibs")
+                    ).FullName;
+                    await RunAsync("dotnet", $"build -f net6.0 -p:OutputPath={outputDir}", folder.FullName);
+
+                    var dllFile = Path.Combine(outputDir, "XamlHotReloadSamples.dll");
+                    using var http = new HttpClient(handler, disposeHandler: false)
+                    {
+                        BaseAddress = deviceUrl,
+                    };
+                    var response = await http.PostAsync(
+                        "/upload-assembly",
+                        new ByteArrayContent(File.ReadAllBytes(dllFile)));
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("Error upload assembly");
+                    }
+                    else
+                    {
+                        Console.WriteLine("uploaded assembly");
+                    }
                 }
-                Console.WriteLine($"Changes not reloaded {deviceUrl}");
-                var errorException = contentJson["Exception"].GetString();
-                Console.WriteLine(errorException);
-                Console.WriteLine();
+                else
+                {
+                    using var http = new HttpClient(handler, disposeHandler: false)
+                    {
+                        BaseAddress = deviceUrl,
+                    };
+                    var xaml = File.ReadAllText(fullPath);
+                    var response = await http.PostAsync(
+                        "/upload-xaml",
+                        new StringContent(xaml, Encoding.UTF8, "text/xml"));
+                    var content = await response.Content.ReadAsStringAsync();
+                    var contentJson = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(content);
+                    if (contentJson == null)
+                        continue;
+                    var reloaded = contentJson["Reloaded"].GetBoolean();
+                    if (reloaded)
+                    {
+                        Console.WriteLine($"Reloaded {deviceUrl} {fullPath}: {reloaded}");
+                        continue;
+                    }
+                    Console.WriteLine($"Changes not reloaded {deviceUrl}");
+                    var errorException = contentJson["Exception"].GetString();
+                    Console.WriteLine(errorException);
+                    Console.WriteLine();
+                }
             }
             catch (Exception ex)
             {
@@ -68,8 +98,9 @@ command.SetHandler((folder, deviceUrls) =>
         }
     }
 
-    var watcher = new FileSystemWatcher(fullDir, "*.xaml")
+    var watcher = new FileSystemWatcher(fullDir)
     {
+        Filters = { "*.xaml", /*"*.cs"*/ },
         IncludeSubdirectories = true,
         EnableRaisingEvents = true,
     };

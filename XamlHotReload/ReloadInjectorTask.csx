@@ -19,24 +19,24 @@ public static class ReloadInjector
         info?.Invoke($"Start injecting reload {assembly}");
 
         var module = assembly.MainModule;
-        var xamlFilePaths = module.Types.Where(v => v.CustomAttributes.Any(v => v.AttributeType.FullName.Contains("XamlFilePathAttribute")));
+        var allTypeMethods = module.Types.SelectMany(v => v.Methods);
 
         var reloaderAssemblyRef = module.AssemblyReferences.First(v => v.Name == "XamlHotReload");
         var reloader = module.AssemblyResolver.Resolve(reloaderAssemblyRef);
 
-        foreach (var xamlFile in xamlFilePaths)
+        foreach (var method in allTypeMethods)
         {
-            var initComponentMethod = xamlFile.Methods.First(v => v.Name.Contains("InitializeComponent") && v.CustomAttributes.Any(v => v.AttributeType.FullName.Contains("Generated")));
-            var lastInstr = initComponentMethod.Body.Instructions.Last();
-            initComponentMethod.Body.Instructions.RemoveAt(initComponentMethod.Body.Instructions.Count - 1);
+            var lastInstr = method.Body.Instructions.Last();
+            method.Body.Instructions.RemoveAt(method.Body.Instructions.Count - 1);
             
-            var il = initComponentMethod.Body.GetILProcessor();
+            // Inject at the end of method
+            var il = method.Body.GetILProcessor();
 
             var reloaderType = reloader.MainModule.Types.First(v => v.FullName.Contains("XamlHotReload.Reloader"));
             var reloaderInstance = reloaderType.Methods.First(v => v.Name.Contains("get_Instance"));
             il.Emit(OpCodes.Call, module.ImportReference(reloaderInstance));
             il.Emit(OpCodes.Ldarg_0);
-            var tryInitComponent = reloaderType.Methods.First(v => v.Name.Contains("TryInitializeComponent"));
+            var tryInitComponent = reloaderType.Methods.First(v => v.Name.Contains("TryInterceptInstance"));
             il.Emit(OpCodes.Callvirt, module.ImportReference(tryInitComponent));
             il.Emit(OpCodes.Nop);
             il.Emit(OpCodes.Ret);

@@ -48,7 +48,8 @@
 
     <ItemGroup>
         <!-- <PackageReference Include="XamlHotReload" Version="1.0.0-alpha1" Condition=" $(Configuration) == Debug " GeneratePathProperty="true" /> -->
-        <ProjectReference Include="..\XamlHotReload\XamlHotReload.csproj" Condition=" $(Configuration) == Debug "  />
+        <PackageReference Include="ReloadPreview" Version="3.0.7" />
+        <ProjectReference Include="..\XamlHotReload\XamlHotReload.csproj" Condition=" $(Configuration) == Debug " />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0-rc.2.22430.11" />
     </ItemGroup>
 

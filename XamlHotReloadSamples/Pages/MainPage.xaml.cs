@@ -9,6 +9,9 @@ public partial class MainPage
     public MainPage()
     {
         InitializeComponent();
+        // Content = new Label{
+        //     Text="Updated 5"
+        // };
     }
 
     private void OnCounterClicked(object sender, EventArgs e)
