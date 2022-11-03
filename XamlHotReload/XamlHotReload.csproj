@@ -10,21 +10,20 @@
     
     <ItemGroup>
         <PackageReference Include="EmbedIO" Version="3.5.0" />
+        <PackageReference Include="Unosquare.Swan.Lite" Version="3.1.0" />
         <PackageReference Include="NuGetizer" Version="0.9.0">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="ReloadPreview" Version="3.0.7" />
-        <PackageReference Include="Unosquare.Swan.Lite" Version="3.1.0" />
     </ItemGroup>
 
-    <ItemGroup>
+    <!-- <ItemGroup>
         <BuildItems Include="*.targets" />
         <BuildItems Include=".config\*.json" />
         <BuildItems Include="publish\**\*" />
         <BuildItems Remove="publish\**\*.DS_Store" />
         <BuildItems Include="@(BuildItems)" />
         <PackageFile Include="@(BuildItems)" PackagePath="build\%(RelativeDir)%(Filename)%(Extension)" />
-    </ItemGroup>
+    </ItemGroup> -->
 
 </Project>

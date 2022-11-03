@@ -1,0 +1,18 @@
+<Project>
+    <PropertyGroup>
+        <AssemblyFile>$(MSBuildThisFileDirectory)XamlHotReloadBuild.dll</AssemblyFile>
+        <AssemblyFile
+             Condition="!Exists('$(AssemblyFile)')">$(MSBuildThisFileDirectory)bin\Debug\net6.0\XamlHotReloadBuild.dll</AssemblyFile>
+    </PropertyGroup>
+    <UsingTask
+         TaskName="XamlHotReloadBuild.XamlHotReloadBuildTask"
+         AssemblyFile="$(AssemblyFile)"/>
+    <Target
+         Name="ReloadInjectorTask"
+         AfterTargets="AfterCompile"
+         Condition="Exists(@(IntermediateAssembly)) and $(DisableReloadInjector) != true">
+         <XamlHotReloadBuild.XamlHotReloadBuildTask
+            MainAssembly="@(IntermediateAssembly)"
+            References="@(ReferencePath)" />
+    </Target>
+</Project>

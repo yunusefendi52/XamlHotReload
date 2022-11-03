@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk='Microsoft.Build.NoTargets/3.5.6'>
+  <PropertyGroup>
+    <PackageId>XamlHotReload</PackageId>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NuGetizer" Version="0.9.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <ProjectReference Include="..\XamlHotReloadBuild\XamlHotReloadBuild.csproj" />
+    <ProjectReference Include="..\XamlHotReload\XamlHotReload.csproj"/>
+  </ItemGroup>
+</Project>

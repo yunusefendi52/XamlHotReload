@@ -30,8 +30,14 @@ public class Reloader
         OnNewAssembly?.Invoke(this, assembly);
     }
 
+    bool initialized;
+
     public void Init(string address = "http://*", int port = 7451)
     {
+        if (initialized)
+            return;
+        initialized = true;
+
         OnInterceptInstance += (s, e) =>
         {
             if (e.Instance is not VisualElement view)

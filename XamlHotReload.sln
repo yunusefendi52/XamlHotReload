@@ -1,5 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{384B17B1-7852-44FF-B44A-98E2B4A42E05}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamlHotReload", "XamlHotReload\XamlHotReload.csproj", "{F5798F97-8AC9-4936-8103-02A9A5AF93F2}"
@@ -9,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamlHotReloadSamples", "XamlHotReloadSamples\XamlHotReloadSamples.csproj", "{AACAEDD0-786F-40A7-81DB-CB2F4CF5F16B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{52247169-C54B-4F89-B90B-02951296DC90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamlHotReloadBuild", "XamlHotReloadBuild\XamlHotReloadBuild.csproj", "{1A1B140F-4921-4D37-A2B9-5237D344204C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,5 +35,9 @@ Global
 		{AACAEDD0-786F-40A7-81DB-CB2F4CF5F16B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AACAEDD0-786F-40A7-81DB-CB2F4CF5F16B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AACAEDD0-786F-40A7-81DB-CB2F4CF5F16B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A1B140F-4921-4D37-A2B9-5237D344204C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A1B140F-4921-4D37-A2B9-5237D344204C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A1B140F-4921-4D37-A2B9-5237D344204C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A1B140F-4921-4D37-A2B9-5237D344204C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

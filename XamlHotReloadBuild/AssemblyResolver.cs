@@ -1,55 +1,9 @@
-#!/usr/bin/env dotnet dotnet-script
-#r "nuget: Mono.Cecil, 0.11.4"
-using System.Net;
-
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
-using Mono.Cecil.Cil;
 
-public static class ReloadInjector
-{
-    public static bool Inject(
-        AssemblyDefinition assembly,
-        Action<string> debug = null,
-        Action<string> info = null
-    )
-    {
-        info?.Invoke($"Start injecting reload {assembly}");
+namespace XamlHotReloadBuild;
 
-        var module = assembly.MainModule;
-        var allTypeMethods = module.Types.SelectMany(v => v.Methods).ToList();
-
-        var reloaderAssemblyRef = module.AssemblyReferences.First(v => v.Name == "XamlHotReload");
-        var reloader = module.AssemblyResolver.Resolve(reloaderAssemblyRef);
-
-        foreach (var method in allTypeMethods)
-        {
-            if (method.Body == null || method.Body.Instructions == null || !method.Body.Instructions.Any())
-                continue;
-
-            var lastInstr = method.Body.Instructions.Last();
-            method.Body.Instructions.RemoveAt(method.Body.Instructions.Count - 1);
-            
-            // Inject at the end of method
-            var il = method.Body.GetILProcessor();
-
-            var reloaderType = reloader.MainModule.Types.First(v => v.FullName.Contains("XamlHotReload.Reloader"));
-            var reloaderInstance = reloaderType.Methods.First(v => v.Name.Contains("get_Instance"));
-            il.Emit(OpCodes.Call, module.ImportReference(reloaderInstance));
-            il.Emit(OpCodes.Ldarg_0);
-            var tryInitComponent = reloaderType.Methods.First(v => v.Name.Contains("TryInterceptInstance"));
-            il.Emit(OpCodes.Callvirt, module.ImportReference(tryInitComponent));
-            il.Emit(OpCodes.Nop);
-            il.Emit(OpCodes.Ret);
-        }
-
-        return true;
-    }
-}
-
-class AssemblyResolver : BaseAssemblyResolver
+public class AssemblyResolver : BaseAssemblyResolver
 {
     // private readonly ILogger _logger;
     private readonly IDictionary<string, AssemblyDefinition> _assemblyCache;
@@ -72,11 +26,11 @@ class AssemblyResolver : BaseAssemblyResolver
                 _assemblyCache[assembly.Name.Name] = assembly;
             }
         }
-        
+
         // logger.Info("Done loading referenced assemblies");
     }
 
-    public override AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters readParameters)
+    public override AssemblyDefinition? Resolve(AssemblyNameReference name, ReaderParameters readParameters)
     {
         if (name is null) throw new ArgumentNullException(nameof(name));
 
@@ -86,7 +40,7 @@ class AssemblyResolver : BaseAssemblyResolver
             return assemblyDefinition;
         }
         assemblyDefinition = base.Resolve(name, readParameters);
-        
+
         if (assemblyDefinition != null)
         {
             // _logger.Debug($"Resolved assembly {name.FullName} from '{assemblyDefinition.MainModule.FileName}'", DebugLogLevel.Verbose);
@@ -99,7 +53,7 @@ class AssemblyResolver : BaseAssemblyResolver
         return assemblyDefinition;
     }
 
-    public TypeDefinition ResolveType(string fullTypeName)
+    public TypeDefinition? ResolveType(string fullTypeName)
     {
         if (fullTypeName is null) throw new ArgumentNullException(nameof(fullTypeName));
         if (_typeCache.TryGetValue(fullTypeName, out TypeDefinition type))
@@ -180,38 +134,3 @@ class AssemblyResolver : BaseAssemblyResolver
         return AssemblyDefinition.ReadAssembly(filePath, readerParameters);
     }
 }
-
-var assemblyPath = Args[0];
-var references = Args.ElementAtOrDefault(1);
-
-var resolver = new AssemblyResolver(references.Split(";"));
-var assemblyDef = AssemblyDefinition.ReadAssembly(assemblyPath, new ReaderParameters
-{
-    ReadWrite = true,
-    AssemblyResolver = resolver,
-});
-bool loadedSymbols;
-try
-{
-    assemblyDef.MainModule.ReadSymbols();
-    loadedSymbols = true;
-}
-catch
-{
-    loadedSymbols = false;
-}
-if (!ReloadInjector.Inject(assemblyDef, (v) =>
-{
-    Console.WriteLine(v);
-},
-(v) =>
-{
-    Console.WriteLine(v);
-}))
-{
-    return 1;
-}
-assemblyDef.Write(new WriterParameters
-{
-    WriteSymbols = loadedSymbols,
-});

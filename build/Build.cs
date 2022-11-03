@@ -21,36 +21,34 @@ class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main () => Execute<Build>(x => x.Compile);
+    public static int Main () => Execute<Build>(x => x.CompileLib);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     Target Clean => _ => _
+        .Before(Restore)
         .Executes(() =>
         {
-            RootDirectory.GlobDirectories("**/{bin,obj}")
+            RootDirectory.GlobDirectories("**/Xaml*/**/{bin,obj}")
                 .ForEach(DeleteDirectory);
         });
 
     Target Restore => _ => _
-        .DependsOn(Clean)
         .Executes(() =>
         {
             DotNet("restore");
-            DotNet("tool restore", workingDirectory: RootDirectory / "XamlHotReload");
         });
 
-    Target Compile => _ => _
+    Target CompileLib => _ => _
         .DependsOn(Restore)
         .Executes(() =>
         {
-            DotNet("dotnet-script --no-cache -c Release publish ReloadInjectorTask.csx --dll", workingDirectory: RootDirectory / "XamlHotReload");
-            DotNet("pack -c Release", workingDirectory: RootDirectory / "XamlHotReload");
+            DotNet("pack -c Release", workingDirectory: RootDirectory / "XamlHotReloadPackaging");
         });
 
     Target CompileWatcher => _ => _
-        .DependsOn(Clean)
+        .DependsOn(Restore)
         .Executes(() =>
         {
             DotNet("pack -c Release", workingDirectory: RootDirectory / "XamlHotReloadWatcher");

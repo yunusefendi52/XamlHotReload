@@ -73,7 +73,7 @@
             "type": "string",
             "enum": [
               "Clean",
-              "Compile",
+              "CompileLib",
               "CompileWatcher",
               "Restore"
             ]
@@ -86,7 +86,7 @@
             "type": "string",
             "enum": [
               "Clean",
-              "Compile",
+              "CompileLib",
               "CompileWatcher",
               "Restore"
             ]
